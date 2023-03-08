@@ -7,46 +7,36 @@ import com.sam.mall.service.PmsBrandService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
+
 
 /**
  * 品牌管理Controller
- * @Api：用于修饰Controller类，生成Controller相关文档信息
- * @ApiOperation：用于修饰Controller类中的方法，生成接口方法相关文档信息
- * @ApiParam：用于修饰接口中的参数，生成接口参数相关文档信息
- * @ApiModelProperty：用于修饰实体类的属性，当实体类是请求参数或返回结果时，直接生成相关文档信息
- *
+ * Created by macro on 2019/4/19.
  */
+@Api(tags = "PmsBrandController", description = "商品品牌管理")
 @Controller
 @RequestMapping("/brand")
-@Api(tags = "PmsBrandController")
-@Tag(name = "PmsBrandController", description = "商品品牌管理")
 public class PmsBrandController {
-    @Resource
+    @Autowired
     private PmsBrandService brandService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PmsBrandController.class);
 
-    @ApiOperation(value = "获取全部品牌列表")
-    @RequestMapping(value = "/listAll", method = RequestMethod.GET)
+    @ApiOperation("获取所有品牌列表")
+    @RequestMapping(value = "listAll", method = RequestMethod.GET)
     @ResponseBody
     public CommonResult<List<PmsBrand>> getBrandList() {
         return CommonResult.success(brandService.listAllBrand());
     }
 
-    /**
-     * @Validated：参数校验
-     * @param pmsBrand
-     * @return
-     */
     @ApiOperation("添加品牌")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody

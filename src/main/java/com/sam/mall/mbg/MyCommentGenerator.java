@@ -17,7 +17,6 @@ import java.util.Properties;
 public class MyCommentGenerator extends DefaultCommentGenerator {
     private boolean addRemarkComments = false;
     private static final String EXAMPLE_SUFFIX="Example";
-    private static final String MAPPER_SUFFIX="Mapper";
     private static final String API_MODEL_PROPERTY_FULL_CLASS_NAME="io.swagger.annotations.ApiModelProperty";
 
     /**
@@ -38,6 +37,7 @@ public class MyCommentGenerator extends DefaultCommentGenerator {
         String remarks = introspectedColumn.getRemarks();
         //根据参数和备注信息判断是否添加备注信息
         if(addRemarkComments&&StringUtility.stringHasValue(remarks)){
+//            addFieldJavaDoc(field, remarks);
             //数据库中特殊字符需要转义
             if(remarks.contains("\"")){
                 remarks = remarks.replace("\"","'");
@@ -47,14 +47,27 @@ public class MyCommentGenerator extends DefaultCommentGenerator {
         }
     }
 
+    /**
+     * 给model的字段添加注释
+     */
+    private void addFieldJavaDoc(Field field, String remarks) {
+        //文档注释开始
+        field.addJavaDocLine("/**");
+        //获取数据库字段的备注信息
+        String[] remarkLines = remarks.split(System.getProperty("line.separator"));
+        for(String remarkLine:remarkLines){
+            field.addJavaDocLine(" * "+remarkLine);
+        }
+        addJavadocTag(field, false);
+        field.addJavaDocLine(" */");
+    }
+
     @Override
     public void addJavaFileComment(CompilationUnit compilationUnit) {
         super.addJavaFileComment(compilationUnit);
         //只在model中添加swagger注解类的导入
-        String fullyQualifiedName = compilationUnit.getType().getFullyQualifiedName();
-        if(!fullyQualifiedName.contains(MAPPER_SUFFIX)&&!fullyQualifiedName.contains(EXAMPLE_SUFFIX)){
+        if(!compilationUnit.isJavaInterface()&&!compilationUnit.getType().getFullyQualifiedName().contains(EXAMPLE_SUFFIX)){
             compilationUnit.addImportedType(new FullyQualifiedJavaType(API_MODEL_PROPERTY_FULL_CLASS_NAME));
         }
     }
-
 }
